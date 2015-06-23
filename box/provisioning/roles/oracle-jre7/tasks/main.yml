@@ -1,0 +1,18 @@
+---
+- name: Create jre directory
+  file: state=directory dest={{ inera_root }}/jre mode=755
+
+- name: Download java
+  command: "creates={{ archive_dir }}/{{ jre_tarball }} \
+           curl http://download.oracle.com/otn-pub/java/jdk/{{ java_version }}-b14/{{ jre_tarball }} -o {{ archive_dir }}/{{ jre_tarball }} -L -H 'Cookie: oraclelicense=accept-securebackup-cookie'"
+
+- name: mk JAVA_HOME
+  file: state=directory dest={{ java_home }} mode=755
+
+- name: Extract java
+  command: creates={{ java_home }}/bin/java
+           tar zxf {{ archive_dir }}/{{ jre_tarball }} -C {{ java_home }} --strip-components 1
+
+
+
+

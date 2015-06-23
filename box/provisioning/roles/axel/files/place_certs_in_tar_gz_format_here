@@ -1,0 +1,35 @@
+Här i ligger en tar.gz fil (certs.tar.gz) som task "install_certs" i roles/axel/tasks/main.yml använder för att kopiera in de certifikat som används av axel.
+
+För oss innehöll den här filen filerna listade nedan (kanske bra att ha för jämföra med konfigfiler). Endera bygger ni ihop den här filen själva, alternativt tar bort task "install_certs" och
+kopierar in filerna manuellt. Konfigfiler i roles/axel/templates/* innehåller de certifikat-filer som behövs.
+
+
+[jongle@ansible (ansible.sm) axel_export]$ tar -ztvf roles/axel/files/certs.tar.gz 
+drwxr-sr-x jonmat/nmt        0 2014-12-01 15:06 certs/
+-rw-r--r-- jonmat/nmt     4093 2014-05-14 09:31 certs/shs-test-server.p12
+-rw-r--r-- jonmat/nmt      791 2014-05-14 09:31 certs/truststore.jks
+-rw-r--r-- jonmat/nmt     2657 2014-09-02 17:19 certs/268B5EC441D822B2.jks
+-rw-r----- jonmat/nmt       17 2014-05-20 11:21 certs/268B5EC441D822B2.pwd
+-rw-r--r-- jonmat/nmt       11 2014-09-02 16:38 certs/axel.sim1-leg.pwd
+-rw-r--r-- jonmat/nmt     2168 2014-05-14 09:31 certs/tp.jks
+-rw-r----- jonmat/nmt     4575 2014-05-20 11:43 certs/test.shs.ntjp.sjunet.org_underskrift.pem
+-rw-r----- jonmat/nmt       11 2014-05-20 11:04 certs/test.shs.ntjp.sjunet.org_underskrift.pwd
+-rwxr-xr-x jonmat/nmt       32 2014-05-20 12:36 certs/268B5EC441D822B2.bin
+-rw-r----- jonmat/nmt      212 2014-12-01 15:06 certs/siths.txt
+-rw-r----- jonmat/nmt     4206 2014-05-20 11:20 certs/268B5EC441D822B2.pem
+-rw-r--r-- jonmat/nmt     1464 2014-05-14 09:31 certs/ca-certs.jks
+-rw-r--r-- jonmat/nmt        9 2014-09-03 12:35 certs/shs-test-server.pwd
+-rw-r--r-- jonmat/nmt     3131 2014-05-20 09:36 certs/268B5EC441D822B2.p12
+-rw-r----- jonmat/nmt       11 2014-05-20 11:03 certs/test.shs.ntjp.sjunet.org_legitimering.pwd
+-rw-r----- jonmat/nmt     3470 2014-05-20 09:36 certs/test.shs.ntjp.sjunet.org_legitimering.p12
+-rw-r--r-- jonmat/nmt     1941 2014-09-02 16:37 certs/axel.sim1-leg.p12
+-rw-r----- jonmat/nmt      302 2014-12-01 15:06 certs/steria.txt
+-rw-r----- jonmat/nmt     3430 2014-05-20 09:36 certs/test.shs.ntjp.sjunet.org_underskrift.p12
+-rw-r----- jonmat/nmt     4627 2014-05-20 11:26 certs/test.shs.ntjp.sjunet.org_legitimering.pem
+-rw-r--r-- jonmat/nmt     3016 2014-05-20 09:36 certs/steria-ca.jks
+[jongle@ansible (ansible.sm) axel_export]$ emacs roles/axel/files/place_certs_in_tar_gz_format_here 
+[jongle@ansible (ansible.sm) axel_export]$ cat roles/axel/
+files/     tasks/     templates/ vars/      
+[jongle@ansible (ansible.sm) axel_export]$ cat roles/axel/
+files/     tasks/     templates/ vars/      
+[jongle@ansible (ansible.sm) axel_export]$ cat roles/axel/templates/

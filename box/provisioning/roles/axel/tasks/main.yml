@@ -1,0 +1,94 @@
+---
+- name: create deploy dir
+  file: state=directory
+        owner={{ tomcat_user }}
+        path=/var/lib/{{ tomcat_service }}/deploy
+
+- name: symlink to deploy dir
+  file: state=link
+        owner={{ tomcat_user }}
+        src=/var/lib/{{ tomcat_service }}/deploy
+        dest={{ tomcat_home }}/deploy
+
+- name: install webapps SHS broker
+  copy: src=axel-shs-broker-{{ axel_version }}.war dest={{ tomcat_home }}/webapps/shs-broker.war
+
+- name: install webapps RIV/SHS
+  copy: src=axel-riv-shs-{{ axel_version }}.war dest={{ tomcat_home }}/webapps/riv-shs.war
+
+- name: install webapps RIV/SHS
+  copy: src=hawtio-default-1.4.0.war dest={{ tomcat_home }}/webapps/hawtio.war
+
+- name: install setenv.sh
+  template: owner={{ tomcat_user }} dest={{ tomcat_home }}/bin src=setenv.sh 
+
+- name: install configuration
+  template: "owner={{ tomcat_user }} 
+            dest={{ axel_home }}/etc/{{ item }}
+            src={{ item }}"
+  with_items:
+    - healthChecks.yaml
+    - log4j.properties
+    - se.inera.axel.activemq.cfg
+    - se.inera.axel.mongodb.cfg
+    - se.inera.axel.monitoring.cfg
+#    - se.inera.axel.riv2ssek.cfg
+    - se.inera.axel.riv.shs.cfg
+    - se.inera.axel.shs.broker.cfg
+
+- name: install certs
+  unarchive: dest={{ axel_home }}/etc/ owner={{ tomcat_user }} src=certs.tar.gz 
+
+#- name: install ldap (yum)
+#  when: ansible_os_family == "RedHat"
+#  yum: name="{{ item }}" state=present
+#  register: openldap_install
+#  with_items:
+#  - openldap-servers 
+#  - openldap-clients
+
+#- name: install ldap (deb)
+#  when: ansible_os_family == "Debian"
+#  apt: name={{ item }} state=present
+#  register: slapd_install
+#  with_items:
+#    - slapd
+#    - ldap-utils
+
+- name: install mongoDB (deb)
+  when: ansible_os_family == "Debian"
+  apt: name=mongodb
+  register: mongodb_install
+
+- name: install mongoDB (yum)
+  when: ansible_os_family == "RedHat"
+  yum: name=mongodb-org
+  register: mongodb_install
+
+- name: create mongo docs dir
+  file: state=directory dest={{ inera_root }}/axel-war-{{ axel_version }}/docs/mongo mode=755 
+
+- name: copy mongo files 
+  copy: src=mongo/createIndexes.js dest={{ inera_root }}/axel-war-{{ axel_version }}/docs/mongo/createIndexes.js 
+
+- name: create ldap docs dir
+  file: state=directory dest={{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap mode=755 
+
+- name: copy ldap file
+  copy: src=ldap/shs.schema dest={{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/shs.schema
+
+- name: copy ldap file
+  copy: src=ldap/slapd.conf dest={{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/slapd.conf
+
+#- name: start ldap
+#  service: name=slapd enabled=yes state=started
+
+#- name: setup ldap step \#1
+#  when: slapd_install.changed or openldap_install.changed
+#  shell: ldapmodify -Y EXTERNAL -H ldapi:/// -f {{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/axel-update.ldif &&\
+#         ldapadd -Y EXTERNAL -H ldapi:/// -f {{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/shs-schema.ldif     &&\
+#         ldapadd -D "cn=admin,l=SHS" -w ldap -f {{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/axel-systemtest.ldif
+
+#- name: setup mongoDB stuff
+#  when: mongodb_install.changed
+#  shell: mongo {{ mongodb_host }}:{{ mongodb_port }}/{{ mongodb_name }} {{ inera_root }}/axel-war-{{ axel_version }}/docs/mongo/createIndexes.js

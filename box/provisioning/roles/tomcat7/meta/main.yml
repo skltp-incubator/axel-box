@@ -1,0 +1,4 @@
+---
+dependencies:
+  - role: oracle-jre7
+  - role: archive_dir

@@ -1,0 +1,6 @@
+---
+httpd_user: inera-httpd
+httpd_group: inera-httpd
+httpd_home: "{{ inera_root }}/httpd"
+httpd_version: 2.4.10
+

@@ -1,0 +1,31 @@
+version: 1
+
+dn: o=IneraTest,l=SHS
+objectClass: top
+objectClass: organization
+objectClass: shsOrgExtension
+o: IneraTest
+organizationNumber: 1234567890
+description: IneraTest
+facsimileTelephoneNumber: 031-123456
+labeledURI: http://www.inera.se
+postalAddress: Stockholm
+postalCode: 12345
+postOfficeBox: Box 1234
+street: Ostgotagatan, STOCKHOLM
+telephoneNumber: 08-123456
+
+dn: ou=Product types,o=IneraTest,l=SHS
+objectClass: top
+objectClass: organizationalUnit
+ou: Product types
+
+dn: ou=Agreements,o=IneraTest,l=SHS
+objectClass: top
+objectClass: organizationalUnit
+ou: Agreements
+
+dn: ou=Addresses,o=IneraTest,l=SHS
+objectClass: top
+objectClass: organizationalUnit
+ou: Addresses

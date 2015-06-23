@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "chef/centos-6.5"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.name = "axel"
+    vb.memory = "2048"
+    vb.customize ["modifyvm", :id, "--vram", "28"]
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo yum update
+    sudo yum install nano -y
+    sudo yum install gedit -y
+    sudo yum -y groupinstall "Desktop" "Desktop Platform" "X Window System" "Fonts"
+    sudo yum -y groupinstall "Graphical Administration Tools"
+    sudo yum -y groupinstall "Internet Browser"
+    sudo yum -y groupinstall "General Purpose Desktop"
+    sudo yum -y groupinstall "Office Suite and Productivity"
+    sudo yum -y groupinstall "Graphics Creation Tools"
+  SHELL
+    config.vm.provision "ansible" do | ansible|
+    ansible.playbook = "provisioning/axelbox.yml"
+  end
+end

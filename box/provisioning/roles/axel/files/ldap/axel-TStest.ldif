@@ -1,0 +1,31 @@
+version: 1
+
+dn: o=Transportstyrelsen,l=SHS
+objectClass: top
+objectClass: organization
+objectClass: shsOrgExtension
+o: Transportstyrelsen
+organizationNumber: 2021006099
+description: Transportstyrelsen
+facsimileTelephoneNumber: 031-123456
+labeledURI: http://www.transportstyrelsen.se
+postalAddress: Stockholm
+postalCode: 12345
+postOfficeBox: Box 1234
+street: STOCKHOLM
+telephoneNumber: 08-123456
+
+dn: ou=Product types,o=Transportstyrelsen,l=SHS
+objectClass: top
+objectClass: organizationalUnit
+ou: Product types
+
+dn: ou=Agreements,o=Transportstyrelsen,l=SHS
+objectClass: top
+objectClass: organizationalUnit
+ou: Agreements
+
+dn: ou=Addresses,o=Transportstyrelsen,l=SHS
+objectClass: top
+objectClass: organizationalUnit
+ou: Addresses

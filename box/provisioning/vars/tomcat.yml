@@ -1,0 +1,9 @@
+---
+tomcat6_home: "{{ inera_root }}/tomcat6"
+tomcat7_home: "{{ inera_root }}/tomcat7"
+tomcat6_version: 6.0.43
+tomcat7_version: 7.0.61
+tomcat_user: inera-tomcat
+tomcat_group: inera-tomcat
+tomcat_service: inera-tomcat
+

@@ -1,0 +1,110 @@
+---
+- name: download axel source code
+  git: repo=https://github.com/sklaxel/inera-axel.git
+       dest={{ archive_dir }}/inera-axel
+       version=v1.0-beta1
+  tags:
+    - download_git
+
+# -Dmaven.test.skip=true
+- name: build axel
+  sudo: no
+  command: mvn clean install
+  args:
+    chdir: ~/inera-axel
+    creates: /home/{{ ansible_env.SUDO_USER }}/inera-axel/platforms/war/distribution-war/target/axel-war-{{ axel_version }}.tar.gz
+           
+
+- name: copy target to archive
+  command: cp /home/{{ ansible_env.SUDO_USER }}/inera-axel/platforms/war/distribution-war/target/axel-war-{{ axel_version }}.tar.gz {{ archive_dir }}/axel-war-{{ axel_version }}.tar.gz
+
+- name: extract AXEL
+  unarchive: src={{ archive_dir }}/axel-war-{{ axel_version }}.tar.gz
+             dest={{ inera_root }}
+             owner={{ tomcat_user }}
+             copy=no
+
+- name: create deploy dir
+  file: state=directory
+        owner={{ tomcat_user }}
+        path=/var/lib/{{ tomcat_service }}/deploy
+
+- name: symlink to deploy dir
+  file: state=link
+        owner={{ tomcat_user }}
+        src=/var/lib/{{ tomcat_service }}/deploy
+        dest={{ tomcat_home }}/deploy
+
+- name: install webapps
+  command: cp {{ inera_root }}/axel-war-{{ axel_version }}/webapps/{{ item }}-war-{{ axel_version }}.war {{ tomcat_home }}/webapps/{{ item }}.war
+           creates="{{ tomcat_home }}/webapps/{{ item }}-war.war"
+  with_items:
+    - monitoring
+    - riv-mocks
+    - riv-shs
+    - riv-ssek
+    - shs-broker
+
+- name: install hawtio
+  command: cp {{ inera_root }}/axel-war-{{ axel_version }}/webapps/hawtio-default-1.4.0.war {{ tomcat_home }}/webapps/hawtio.war
+  args:
+    creates: "{{ tomcat_home }}/webapps/hawtio.war"
+
+- name: install setenv.sh
+  template: owner={{ tomcat_user }} dest={{ tomcat_home }}/bin src=setenv.sh 
+
+- name: install configuration
+  template: "owner={{ tomcat_user }} 
+            dest={{ axel_home }}/etc/{{ item }}
+            src={{ item }}"
+  with_items:
+    - healthChecks.yaml
+    - log4j.properties
+    - se.inera.axel.activemq.cfg
+    - se.inera.axel.mongodb.cfg
+    - se.inera.axel.monitoring.cfg
+    - se.inera.axel.riv2ssek.cfg
+    - se.inera.axel.riv.shs.cfg
+    - se.inera.axel.shs.broker.cfg
+
+- name: install certs
+  unarchive: dest={{ axel_home }}/etc/ owner={{ tomcat_user }} src=certs.tar.gz 
+
+- name: install ldap (yum)
+  when: ansible_os_family == "RedHat"
+  yum: name="{{ item }}" state=present
+  register: openldap_install
+  with_items:
+  - openldap-servers 
+  - openldap-clients
+
+- name: install ldap (deb)
+  when: ansible_os_family == "Debian"
+  apt: name={{ item }} state=present
+  register: slapd_install
+  with_items:
+    - slapd
+    - ldap-utils
+
+- name: install mongoDB (deb)
+  when: ansible_os_family == "Debian"
+  apt: name=mongodb
+  register: mongodb_install
+
+- name: install mongoDB (yum)
+  when: ansible_os_family == "RedHat"
+  yum: name=mongodb-org
+  register: mongodb_install
+
+- name: start ldap
+  service: name=slapd enabled=yes state=started
+
+- name: setup ldap step \#1
+  when: slapd_install.changed or openldap_install.changed
+  shell: ldapmodify -Y EXTERNAL -H ldapi:/// -f {{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/axel-update.ldif &&\
+         ldapadd -Y EXTERNAL -H ldapi:/// -f {{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/shs-schema.ldif     &&\
+         ldapadd -D "cn=admin,l=SHS" -w ldap -f {{ inera_root }}/axel-war-{{ axel_version }}/docs/ldap/axel-systemtest.ldif
+
+- name: setup mongoDB stuff
+#  when: mongodb_install.changed
+  command: mongo {{ mongodb_host }}:{{ mongodb_port }}/{{ mongodb_name }} {{ inera_root }}/axel-war-{{ axel_version }}/docs/mongo/createIndexes.js

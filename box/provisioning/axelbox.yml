@@ -1,0 +1,21 @@
+- hosts: default
+  remote_user: vagrant
+  sudo: yes 
+  vars: 
+    inera_root: /opt/inera
+    archive_dir: "{{ inera_root }}/archives"
+
+  vars_files:
+    - vars/java.yml
+    - vars/tomcat.yml
+    - vars/httpd.yml
+    - vars/credentials.yml    
+
+  roles:
+    - mongodb
+    - archive_dir
+    - oracle-jre7
+    - activemq
+    - tomcat7
+    - axel
+

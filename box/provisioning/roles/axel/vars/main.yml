@@ -1,0 +1,7 @@
+---
+axel_version: 1.0-SNAPSHOT
+axel_home: "{{ tomcat_home }}"
+
+mongodb_host: localhost
+mongodb_port: 27017
+mongodb_name: axel

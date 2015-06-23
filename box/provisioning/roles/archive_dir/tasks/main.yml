@@ -1,0 +1,3 @@
+---
+- name: Create inera archive dir
+  file: state=directory dest={{ archive_dir }} mode=755

@@ -1,0 +1,7 @@
+---
+- name: Download activemq
+  get_url: url={{ activemq_download_url }} dest={{ archive_dir }}/apache-activemq-{{ activemq_version }}.tar.gz
+- name: Extract activemq
+  unarchive: src={{ archive_dir }}/apache-activemq-{{ activemq_version }}.tar.gz dest={{ inera_root }} copy=no
+#- name: Boot ActiveMQ
+#service: name=activemq state=running enabled=yes

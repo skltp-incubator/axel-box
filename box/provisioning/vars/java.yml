@@ -1,0 +1,5 @@
+---
+java_version: 7u72
+java_home: "{{ inera_root }}/jre/jre-{{ java_version }}"
+jre_tarball: jre-{{ java_version }}-linux-x64.tar.gz
+
